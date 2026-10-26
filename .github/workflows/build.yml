@@ -1,0 +1,42 @@
+
+name: Crear APK de One Piece RPG
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar proyecto
+        uses: actions/checkout@v4
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Preparar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Extraer el proyecto
+        run: |
+          unzip -o one_piece_rpg_red_local_v02_fuente.zip -d proyecto
+
+      - name: Compilar aplicación del máster
+        run: gradle -p proyecto/one_piece_rpg_lan/MasterApp assembleDebug
+
+      - name: Compilar aplicación del jugador
+        run: gradle -p proyecto/one_piece_rpg_lan/PlayerApp assembleDebug
+
+      - name: Guardar las APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: One-Piece-RPG-APK
+          path: |
+            proyecto/one_piece_rpg_lan/MasterApp/app/build/outputs/apk/debug/*.apk
+            proyecto/one_piece_rpg_lan/PlayerApp/app/build/outputs/apk/debug/*.apk
